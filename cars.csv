@@ -1,4 +1,4 @@
 Id,Model,Type,Status,start_date,now_date
 1,Accord,Sedan,Rented,2023-09-01,2023-09-04
-2,Prius,Sedan,Available,-,-
+2,Prius,Sedan,Available,-,2023-09-04
 3,Optima,Sedan,Rented,2023-09-03,2023-09-04
