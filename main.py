@@ -1,6 +1,7 @@
 import csv
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
 
 CAR_STATUS_INDEX = 3
 
@@ -46,10 +47,24 @@ def getRentedCars(carRow):
     else:
         return False
 
-
 def rentedCarsCount():
     return len(list(rentedCars()))
 
+def averageRentalDuration():
+    rented_cars = list(rentedCars())
+    total_duration = 0
+
+    for car in rented_cars:
+        # create timestamp and calculate duration
+        start_date = datetime.strptime(car[start_date_index], "%Y-%m-%d")
+        end_date = datetime.strptime(car[end_date_index], "%Y-%m-%d")
+        duration = (end_date - start_date).days
+        total_duration += duration
+
+    if rentedCarsCount() > 0:
+        return total_duration / rentedCarsCount()
+    else:
+        return 0
 
 def main():
     # Create window
