@@ -57,7 +57,7 @@ def averageRentalDuration():
     for car in rented_cars:
         # create timestamp and calculate duration
         start_date = datetime.strptime(car[4], "%Y-%m-%d")
-        end_date = datetime.strptime(car[5], "%Y-%m-%d")
+        now_date = datetime.strptime(car[5], "%Y-%m-%d")
         duration = (end_date - start_date).days
         total_duration += duration
 
