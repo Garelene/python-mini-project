@@ -2,9 +2,19 @@ import csv
 import tkinter as tk
 from tkinter import ttk
 import datetime
+import matplotlib
+
+matplotlib.use('TkAgg')
+
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg,
+    NavigationToolbar2Tk
+)
 
 CAR_STATUS_INDEX = 3
-
+CAR_MODEL_INDEX = 1
+CAR_RENTED_COUNT_INDEX = 5
 
 def users():
     rows = []
@@ -13,7 +23,7 @@ def users():
         csvreader = csv.reader(file)
 
         # Skip headers
-        next(csv_reader)
+        next(csvreader)
         for row in csvreader:
             rows.append(row)
 
@@ -24,12 +34,12 @@ def cars():
     rows = []
 
     with open("cars.csv", 'r') as file:
-        csv_reader = csv.reader(file)
+        csvreader = csv.reader(file)
 
         # Skip headers
-        next(csv_reader)
+        next(csvreader)
 
-        for row in csv_reader:
+        for row in csvreader:
             rows.append(row)
 
     return rows
@@ -46,6 +56,7 @@ def getRentedCars(carRow):
         return True
     else:
         return False
+
 
 def rentedCarsCount():
     return len(list(rentedCars()))
@@ -68,12 +79,47 @@ def averageRentalDuration():
     else:
         return 0
 
+
+def renderMostRentedCarsChart(root):
+    chartData = {};
+
+    for carRow in rentedCars():
+        carName = carRow[CAR_MODEL_INDEX]
+        carRentedCount = carRow[CAR_RENTED_COUNT_INDEX]
+
+        chartData[carName] = int(carRentedCount)
+
+    print(chartData)
+
+    models = chartData.keys()
+    popularity = chartData.values()
+
+    # create a figure
+    figure = Figure(figsize=(16, 9), dpi=100)
+
+    # create FigureCanvasTkAgg object
+    figure_canvas = FigureCanvasTkAgg(figure, root)
+
+    # create the toolbar
+    NavigationToolbar2Tk(figure_canvas, root)
+
+    # create axes
+    axes = figure.add_subplot()
+
+    # create the barchart
+    axes.bar(models, popularity)
+    axes.set_title('Most Rented Cars')
+    axes.set_ylabel('Popularity')
+
+    figure_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH)
+
+
 def main():
     # Create window
     root = tk.Tk()
 
     # Provide Window Size
-    root.geometry("750x750")
+    root.geometry("1000x1000")
 
     # App Title
     tk.Label(text="Car Rental Admin Dashboard",
@@ -86,9 +132,11 @@ def main():
     tk.Label(text="{rentedCarsCount}".format(
         rentedCarsCount=rentedCarsCount())).pack()
 
+    # Most Rented Cars Chart
+    renderMostRentedCarsChart(root)
+
     # Run app
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
