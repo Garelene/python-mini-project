@@ -2,8 +2,10 @@ import csv
 import datetime
 import tkinter as tk
 from tkinter import ttk
+
 import matplotlib
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 
 matplotlib.use('TkAgg')
@@ -13,6 +15,7 @@ CAR_MODEL_INDEX = 1
 CAR_RENTED_COUNT_INDEX = 5
 LARGEFONT = ("Verdana", 35)
 MEDIUMFONT = ("Verdana", 20)
+
 
 class App(tk.Tk):
 
@@ -49,22 +52,23 @@ class LoginPage(tk.Frame):
         title.grid(row=0, column=1)
 
         userNameLabel = ttk.Label(self, text="Username", font=MEDIUMFONT)
-        userNameLabel.grid(row=1, column=1)
+        userNameLabel.grid(row=1, column=1, padx=10, pady=10)
 
         userNameInputBox = ttk.Entry(self)
-        userNameInputBox.grid(row=2, column=1)
+        userNameInputBox.grid(row=2, column=1, padx=10, pady=10)
 
         passwordLabel = ttk.Label(self, text="Password", font=MEDIUMFONT)
-        passwordLabel.grid(row=3, column=1)
+        passwordLabel.grid(row=3, column=1, padx=10, pady=10)
 
         passwordInputBox = ttk.Entry(self)
-        passwordInputBox.grid(row=4, column=1)
+        passwordInputBox.grid(row=4, column=1, padx=10, pady=10)
 
         submitButton = ttk.Button(
             self,
             text="Login",
             command=lambda: controller.show_frame(Dashboard))
         submitButton.grid(row=5, column=1)
+
 
 class Dashboard(tk.Frame):
 
@@ -77,8 +81,9 @@ class Dashboard(tk.Frame):
         rentedCarsText = ttk.Label(self, text="Rented Cars", font=MEDIUMFONT)
         rentedCarsText.grid(row=1, column=1, padx=10, pady=10)
 
-        rentedCarsCountText = ttk.Label(self, text="{rentedCarsCount}".format(
-        rentedCarsCount=rentedCarsCount()))
+        rentedCarsCountText = ttk.Label(
+            self,
+            text="{rentedCarsCount}".format(rentedCarsCount=rentedCarsCount()))
         rentedCarsCountText.grid(row=2, column=1, padx=10, pady=10)
 
         mostPopularCarsPageButton = ttk.Button(
@@ -86,7 +91,6 @@ class Dashboard(tk.Frame):
             text="Most Popular Cars",
             command=lambda: controller.show_frame(MostPopularCarsPage))
         mostPopularCarsPageButton.grid(row=3, column=1)
-
 
 
 class MostPopularCarsPage(tk.Frame):
@@ -122,14 +126,13 @@ class MostPopularCarsPage(tk.Frame):
         axes.set_title('Most Rented Cars')
         axes.set_ylabel('Popularity')
 
-        figure_canvas.get_tk_widget().grid(row=1, column=1)
+        figure_canvas.get_tk_widget().grid(row=1, column=1, padx=10, pady=10)
 
         backButton = ttk.Button(
             self,
             text="Back",
             command=lambda: controller.show_frame(Dashboard))
-        backButton.grid(row=2, column=1)
-
+        backButton.grid(row=2, column=1, padx=10, pady=10)
 
 
 def users():
@@ -195,6 +198,7 @@ def averageRentalDuration():
         return total_duration / rentedCarsCount()
     else:
         return 0
+
 
 if __name__ == "__main__":
     app = App()
