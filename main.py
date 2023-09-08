@@ -4,8 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 
 import matplotlib
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
-                                               NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 matplotlib.use('TkAgg')
@@ -13,8 +12,8 @@ matplotlib.use('TkAgg')
 CAR_STATUS_INDEX = 3
 CAR_MODEL_INDEX = 1
 CAR_RENTED_COUNT_INDEX = 5
-LARGEFONT = ("Verdana", 35)
-MEDIUMFONT = ("Verdana", 20)
+LARGEFONT = ("Roboto", 35)
+MEDIUMFONT = ("Roboto", 20)
 
 
 class App(tk.Tk):
@@ -22,7 +21,23 @@ class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
-        self.geometry("1000x1000")
+        self.geometry("700x700")
+
+        # Styles
+        style = ttk.Style()
+        style.theme_use('alt')
+        style.configure(
+            'TButton',
+            background='red',
+            foreground='white',
+            width=20,
+            borderwidth=1,
+            focusthickness=3,
+            focuscolor='none',
+            fontsize='Roboto',
+        )
+        style.map('TButton', background=[('active', 'red')])
+        style.configure('TLabel', background='#ececec')
 
         container = tk.Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -66,7 +81,8 @@ class LoginPage(tk.Frame):
         submitButton = ttk.Button(
             self,
             text="Login",
-            command=lambda: controller.show_frame(Dashboard))
+            command=lambda: controller.show_frame(Dashboard),
+            style='Kim.TButton')
         submitButton.grid(row=5, column=1)
 
 
@@ -80,11 +96,20 @@ class Dashboard(tk.Frame):
 
         rentedCarsText = ttk.Label(self, text="Rented Cars", font=MEDIUMFONT)
         rentedCarsText.grid(row=1, column=1, padx=10, pady=10)
-
         rentedCarsCountText = ttk.Label(
             self,
             text="{rentedCarsCount}".format(rentedCarsCount=rentedCarsCount()))
         rentedCarsCountText.grid(row=2, column=1, padx=10, pady=10)
+
+        rentalDurationText = ttk.Label(self,
+                                       text="Average Rental Duration",
+                                       font=MEDIUMFONT)
+        rentalDurationText.grid(row=1, column=2, padx=10, pady=10)
+        averageRentalDurationText = ttk.Label(
+            self,
+            text="{averageRentalDuration}".format(
+                averageRentalDuration=averageRentalDuration()))
+        averageRentalDurationText.grid(row=2, column=2, padx=10, pady=10)
 
         mostPopularCarsPageButton = ttk.Button(
             self,
@@ -103,11 +128,13 @@ class MostPopularCarsPage(tk.Frame):
 
         chartData = {}
 
-        for carRow in rentedCars():
-            carName = carRow[CAR_MODEL_INDEX]
-            carRentedCount = carRow[CAR_RENTED_COUNT_INDEX]
+        for rentalRow in rentals():
+            carName = rentalRow[1]
 
-            chartData[carName] = int(carRentedCount)
+            if carName in chartData.keys():
+                chartData[carName] += 1
+            else:
+                chartData[carName] = 1
 
         models = chartData.keys()
         popularity = chartData.values()
@@ -164,6 +191,21 @@ def cars():
     return rows
 
 
+def rentals():
+    rows = []
+
+    with open("rentals.csv", 'r') as file:
+        csvreader = csv.reader(file)
+
+        # Skip headers
+        next(csvreader)
+
+        for row in csvreader:
+            rows.append(row)
+
+    return rows
+
+
 def rentedCars():
     return filter(getRentedCars, cars())
 
@@ -182,20 +224,18 @@ def rentedCarsCount():
 
 
 def averageRentalDuration():
-    rented_cars = list(rentedCars())
-    total_duration = 0
+    totalDuration = 0
 
-    # get the date for today
-    current_date = datetime.date.today()
+    for rentalRow in rentals():
+        pickUpDate = datetime.datetime.strptime(rentalRow[3],
+                                                "%Y/%m/%d").date()
+        dropOffDate = datetime.datetime.strptime(rentalRow[4],
+                                                 "%Y/%m/%d").date()
+        duration = (dropOffDate - pickUpDate).days
+        totalDuration += duration
 
-    for car in rented_cars:
-        # calculate duration
-        start_date = datetime.datetime.strptime(car[4], "%Y/%m/%d").date()
-        duration = (current_date - start_date).days
-        total_duration += duration
-
-    if rentedCarsCount() > 0:
-        return total_duration / rentedCarsCount()
+    if len(rentals()) > 0:
+        return totalDuration / len(rentals())
     else:
         return 0
 
