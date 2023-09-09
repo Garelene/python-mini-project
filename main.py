@@ -25,7 +25,6 @@ class App(tk.Tk):
 
         # Styles
         style = ttk.Style()
-        style.theme_use('alt')
         style.configure(
             'TButton',
             background='red',
@@ -37,7 +36,7 @@ class App(tk.Tk):
             fontsize='Roboto',
         )
         style.map('TButton', background=[('active', 'red')])
-        style.configure('TLabel', background='#ececec')
+        style.configure('TLabel')
 
         container = tk.Frame(self)
         container.pack(side='top', fill='both', expand=True)
