@@ -47,7 +47,7 @@ class App(tk.Tk):
 
         self.frames = {}
 
-        for F in (LoginPage, Dashboard, MostPopularCarsPage):
+        for F in (LoginPage, Dashboard, MostPopularCarsPage, BookingsPerDay):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -63,26 +63,46 @@ class LoginPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+        def validateLogin(username, password):
+            for user in users():
+                userUsername = user[3]
+                userPassword = user[4]
+                if username.get() == userUsername and password.get(
+                ) == userPassword:
+                    return True
+
         title = ttk.Label(self, text="Login", font=LARGEFONT)
         title.grid(row=0, column=1)
 
         userNameLabel = ttk.Label(self, text="Username", font=MEDIUMFONT)
         userNameLabel.grid(row=1, column=1, padx=10, pady=10)
 
-        userNameInputBox = ttk.Entry(self)
+        username = tk.StringVar()
+        userNameInputBox = ttk.Entry(self, textvariable=username)
         userNameInputBox.grid(row=2, column=1, padx=10, pady=10)
 
         passwordLabel = ttk.Label(self, text="Password", font=MEDIUMFONT)
         passwordLabel.grid(row=3, column=1, padx=10, pady=10)
 
-        passwordInputBox = ttk.Entry(self)
+        password = tk.StringVar()
+        passwordInputBox = ttk.Entry(self, textvariable=password)
         passwordInputBox.grid(row=4, column=1, padx=10, pady=10)
 
-        submitButton = ttk.Button(
-            self,
-            text="Login",
-            command=lambda: controller.show_frame(Dashboard),
-            style='Kim.TButton')
+        def handleSubmit():
+            isValid = validateLogin(username, password)
+
+            if isValid:
+                controller.show_frame(Dashboard)
+            else:
+                errorMessage = ttk.Label(self,
+                                         text="Wrong Username or Password",
+                                         font=MEDIUMFONT)
+                errorMessage.grid(row=6, column=1, padx=10, pady=10)
+
+        submitButton = ttk.Button(self,
+                                  text="Login",
+                                  command=lambda: handleSubmit(),
+                                  style='Kim.TButton')
         submitButton.grid(row=5, column=1)
 
 
@@ -116,6 +136,12 @@ class Dashboard(tk.Frame):
             text="Most Popular Cars",
             command=lambda: controller.show_frame(MostPopularCarsPage))
         mostPopularCarsPageButton.grid(row=3, column=1)
+
+        bookingsPerDayButton = ttk.Button(
+            self,
+            text="Bookings Per Day",
+            command=lambda: controller.show_frame(BookingsPerDay))
+        bookingsPerDayButton.grid(row=3, column=2)
 
 
 class MostPopularCarsPage(tk.Frame):
@@ -152,6 +178,52 @@ class MostPopularCarsPage(tk.Frame):
         axes.bar(models, popularity)
         axes.set_title('Most Rented Cars')
         axes.set_ylabel('Popularity')
+
+        figure_canvas.get_tk_widget().grid(row=1, column=1, padx=10, pady=10)
+
+        backButton = ttk.Button(
+            self,
+            text="Back",
+            command=lambda: controller.show_frame(Dashboard))
+        backButton.grid(row=2, column=1, padx=10, pady=10)
+
+
+class BookingsPerDay(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        title = ttk.Label(self,
+                          text="Number of Bookings Per Day",
+                          font=LARGEFONT)
+        title.grid(row=0, column=1, padx=10, pady=10)
+
+        chartData = {}
+
+        for rentalRow in rentals():
+            bookedAtDate = rentalRow[6]
+
+            if bookedAtDate in chartData.keys():
+                chartData[bookedAtDate] += 1
+            else:
+                chartData[bookedAtDate] = 1
+
+        bookingDates = chartData.keys()
+        popularity = chartData.values()
+
+        # create a figure
+        figure = Figure(figsize=(5, 3), dpi=100)
+
+        # create FigureCanvasTkAgg object
+        figure_canvas = FigureCanvasTkAgg(figure, self)
+
+        # create axes
+        axes = figure.add_subplot()
+
+        # create the barchart
+        axes.bar(bookingDates, popularity)
+        axes.set_title('Booking Per Day')
+        axes.set_ylabel('Number of Bookings')
 
         figure_canvas.get_tk_widget().grid(row=1, column=1, padx=10, pady=10)
 
